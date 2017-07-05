@@ -1,10 +1,12 @@
 package com.chipone.bjfu.listviewtest;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,29 +16,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class MainActivity extends AppCompatActivity {
     private Toast mToastToShow = null;
+    private ArrayList<String> mArrayList = new ArrayList<>();
+    ArrayAdapter<String> mAdapter = null;
+
     private String[] data = {
-            "available",
-            "access",
-            "REE",
-            "TEE",
-            "123",
-            "abc",
-            "available",
-            "access",
-            "REE",
-            "TEE",
-            "123",
-            "abc",
-            "available",
-            "access",
-            "REE",
-            "TEE",
-            "123",
-            "abc",
-            "available",
-            "access",
             "REE",
             "TEE",
             "123",
@@ -50,23 +38,39 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Collections.addAll(mArrayList, data);//prepare data
+        mAdapter = new ArrayAdapter<>(
+                MainActivity.this, android.R.layout.simple_list_item_1, mArrayList
+        );
        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                        MainActivity.this, android.R.layout.simple_list_item_1, data
-                );
+
+
                 ListView listView = (ListView)findViewById(R.id.listView);
-                listView.setAdapter(adapter);
+                listView.setAdapter(mAdapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String string = "You clicked the item :"+((TextView)view).getText();
                         if (mToastToShow == null) {
-                            mToastToShow = Toast.makeText(getApplicationContext(), "You clicked the item :"+((TextView)view).getText(), Toast.LENGTH_SHORT);
+                            mToastToShow = Toast.makeText(getApplicationContext(), string, Toast.LENGTH_SHORT);
                         }
                         else {
-                            mToastToShow.setText("You clicked the item :"+((TextView)view).getText());
+                            mToastToShow.setText(string);
+                        }
+                        //测试网上的例程而已。
+                        view.setBackgroundColor(Color.LTGRAY);
+                        int i = 1;
+                        mArrayList.add(string + i++);
+                        //如果是直接修改了数据源，那么每次修改之后必须进行一次notifyDataSetChanged
+                        //不然等到下一次点击listview的时候就会报错，报错内容为数据非法
+                        //修改之后数据就OK了。
+                        mAdapter.notifyDataSetChanged();
+                        i = 1;
+                        for (String tmp : mArrayList){
+                            Log.e("mArrayList",tmp+"----"+i++);
                         }
                         //Toast.makeText(getApplicationContext(), "You clicked the item :"+((TextView)view).getText(), Toast.LENGTH_SHORT).show();
                         mToastToShow.show();
